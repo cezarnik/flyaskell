@@ -20,7 +20,7 @@ calcPressurePoint p = k * (p - p0)
 
 -- Must be from 0 to 1
 attenuationBounceCoef :: Double
-attenuationBounceCoef = 0.5
+attenuationBounceCoef = 0.1
 
 gravityCoef :: Double
 gravityCoef = 2
@@ -31,10 +31,10 @@ tensionCoef :: Double
 tensionCoef = 5
 
 h :: Double
-h = 20
+h = 7
 
 viscocityCoef :: Double
-viscocityCoef = -2
+viscocityCoef = -2.5
 
 
 
