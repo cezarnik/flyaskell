@@ -33,8 +33,8 @@ drawAll water = scale 0.5 0.5 (drawFrame <> foldMap drawParticle water)
 
 drawFrame :: Picture
 drawFrame
-  = Graphics.Gloss.color white (rectangleSolid 1610 910)
- <> Graphics.Gloss.color black (rectangleSolid 1600 900)
+  = Graphics.Gloss.color white (rectangleSolid (1610 + realToFrac(2 * h)) (910 + realToFrac(2 * h)))
+ <> Graphics.Gloss.color black (rectangleSolid (1600 + realToFrac(2 * h)) (900 + realToFrac(2 * h)))
 
 run :: IO ()
 run = simulate window background 30 initialState drawAll adv

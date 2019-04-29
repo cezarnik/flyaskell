@@ -15,7 +15,7 @@ unitVector start end
 calcPressurePoint :: Double -> Double
 calcPressurePoint p = k * (p - p0)
   where
-    k = 0.05
+    k = 0.01
     p0 = 0.1
 
 -- Must be from 0 to 1
@@ -23,7 +23,7 @@ attenuationBounceCoef :: Double
 attenuationBounceCoef = 0.5
 
 gravityCoef :: Double
-gravityCoef = 0.25
+gravityCoef = 2
 
 
 -- 1.0 not bad
@@ -31,7 +31,7 @@ tensionCoef :: Double
 tensionCoef = 5
 
 h :: Double
-h = 4
+h = 20
 
 viscocityCoef :: Double
 viscocityCoef = -2
@@ -112,8 +112,8 @@ hessWPoly r
 
 applyHorizontalBound :: Particle -> Particle
 applyHorizontalBound particle
-  | py < -450 = particle { position = (V2 px (-900-py)), velocity = (V2 vx (-vy * attenuationBounceCoef)) }
-  | py > 450 =  particle { position = (V2 px (900-py)), velocity = (V2 vx (-vy * attenuationBounceCoef)) }
+  | py < -450 = particle { position = (V2 px (-900 - py)), velocity = (V2 vx (-vy * attenuationBounceCoef)) }
+  | py > 450 =  particle { position = (V2 px (900 - py)), velocity = (V2 vx (-vy * attenuationBounceCoef)) }
   | otherwise = particle
   where
     V2 px py = position particle
@@ -121,8 +121,8 @@ applyHorizontalBound particle
 
 applyVerticalBound :: Particle -> Particle
 applyVerticalBound particle
-  | px < -800 = particle { position = (V2 (-1600-px) py), velocity = (V2 (-vx * attenuationBounceCoef) vy) }
-  | px > 800  = particle { position = (V2 (1600-px) py), velocity = (V2 (-vx * attenuationBounceCoef) vy) }
+  | px < -800 = particle { position = (V2 (-1600 - px) py), velocity = (V2 (-vx * attenuationBounceCoef) vy) }
+  | px > 800  = particle { position = (V2 (1600 - px) py), velocity = (V2 (-vx * attenuationBounceCoef) vy) }
   | otherwise = particle
   where
     V2 px py = position particle
