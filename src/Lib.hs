@@ -1,10 +1,10 @@
 module Lib (run) where
 
 import           Data.Function  ((&))
-import           Functions      (advance, h)
+import           Functions      (advance)
 import           Graphics.Gloss
 import           Linear
-import           Particle 
+import           Particle
 
 window :: Display
 window = InWindow "Water" (1600, 900) (10, 10)
@@ -37,6 +37,6 @@ drawFrame
  <> Graphics.Gloss.color black (rectangleSolid (1600 + realToFrac(2 * rad)) (900 + realToFrac(2 * rad)))
 
 run :: IO ()
-run = simulate window background 30 initialState drawAll adv
+run = simulate window background 120 initialState drawAll adv
   where
     adv _ _ = advance
