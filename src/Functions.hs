@@ -24,7 +24,7 @@ attenuationBounceCoef :: Double
 attenuationBounceCoef = 0.1
 
 gravityCoef :: Double
-gravityCoef = 2
+gravityCoef = 0
 
 
 -- 1.0 not bad
@@ -32,7 +32,7 @@ tensionCoef :: Double
 tensionCoef = 5
 
 h :: Double
-h = 4
+h = 15
 
 viscocityCoef :: Double
 viscocityCoef = -2
@@ -43,8 +43,8 @@ gravityForce = (V2 0 (-1)) ^* gravityCoef
 -- calcAbstractForcePoint :: (DensPart -> DensPart -> Coord) -> [DensPart] -> DensPart ->  Coord
 calcAbstractForcePoint forceCalculator densWater qt (dens, part) = sum (map g near)
   where
-    g :: DensPart -> Coord
-    g = forceCalculator (dens, part)
+    g :: (DensPart, Int) -> Coord
+    g (densNear, cnt) = (forceCalculator (dens, part) densNear) ^* (fromIntegral cnt)
     near = getResults h (position part) qt
 
 
@@ -153,11 +153,11 @@ advance water = map g densAndWater
           viscosityForce (dens, part) + tensionForce (dens,part)) ^/ (mass part))}
 
 
-calcDensityPoint :: Particle -> Water -> Double
+calcDensityPoint :: Particle -> [(Particle, Int)] -> Double
 calcDensityPoint particle water = sum (map g water)
   where
-    g :: Particle -> Double
-    g part = k * (mass part)
+    g :: (Particle, Int) -> Double
+    g (part, cnt) = (fromIntegral cnt) * k * (mass part)
       where
         k = wDens (distance (position part) (position particle))
 

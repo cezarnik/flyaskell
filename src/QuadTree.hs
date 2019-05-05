@@ -79,17 +79,17 @@ distRectPoint (V2 x_lb y_lb, V2 x_ru y_ru) (V2 x y)
 		distance (V2 x y) (V2 x_ru y_lb), distance (V2 x y) (V2 x_ru y_ru)]
 
 
-getResults :: Double -> Coord -> QuadTree a -> [a]
+getResults :: Double -> Coord -> QuadTree a -> [(a, Int)]
 getResults rad pivot qtree
 	| distRectPoint rect pivot <= rad = getRange rad pivot qtree
 	| otherwise												= []
 		where
 			QuadTree rect _ = qtree
 
-getRange :: Double -> Coord -> QuadTree a -> [a]
+getRange :: Double -> Coord -> QuadTree a -> [(a, Int)]
 getRange _ _ (QuadTree _ Empty) = []
 getRange rad pivot (QuadTree _ (Bucket element position cnt))
-	| distance pivot position <= rad = map (\x -> element) [1..cnt]
+	| distance pivot position <= rad = [(element, cnt)]
 	|	otherwise                     = []
 getRange rad pivot (QuadTree _ (Split (Quad lb rb ru lu))) = concat [lb_res, rb_res, ru_res, lu_res]
   where
