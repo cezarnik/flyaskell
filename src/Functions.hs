@@ -59,9 +59,7 @@ calcTensionForcePoint = calcAbstractForcePoint calcTensionForceBetweenPoints
 
 -- force from part2 on part1
 calcPressureForceBetweenPoints :: DensPart -> DensPart -> Coord
-calcPressureForceBetweenPoints (dens1, part1) (dens2, part2)
-  | k /= 0 = unit ^* ((mass part2) * (pressure1 + pressure2) / (2 * dens2) * k)
-  | otherwise = 0
+calcPressureForceBetweenPoints (dens1, part1) (dens2, part2) = unit ^* ((mass part2) * (pressure1 + pressure2) / (2 * dens2) * k)
   where
     k = gradWPoly len
     unit = unitVector (position part1) (position part2)
@@ -71,9 +69,7 @@ calcPressureForceBetweenPoints (dens1, part1) (dens2, part2)
 
 
 calcViscosityForceBetweenPoints :: DensPart -> (Double,Particle) -> Coord
-calcViscosityForceBetweenPoints (_dens1,part1) (dens2,part2)
-  | k /= 0 = (v1 - v2) ^* (m2 * viscocityCoef / dens2 * k)
-  | otherwise = 0
+calcViscosityForceBetweenPoints (_dens1,part1) (dens2,part2) = (v1 - v2) ^* (m2 * viscocityCoef / dens2 * k)
   where
     k = hessWPoly (distance (position part1) (position part2))
     v1 = velocity part1
@@ -99,9 +95,7 @@ gradWPoly :: Double -> Double
 gradWPoly r = -315 / 64 / pi / h^9 * 6 * r * (h^2 - r^2) ^ 2
 
 hessWPoly :: Double -> Double
-hessWPoly r
-  | r <= h = 315 / 64 / pi / h^9 * 6 * (h^2 - r^2) * (4 * r^2 - (h^2 - r^2))
-  | otherwise = 0
+hessWPoly r = 315 / 64 / pi / h^9 * 6 * (h^2 - r^2) * (4 * r^2 - (h^2 - r^2))
 
 applyHorizontalBound :: Particle -> Particle
 applyHorizontalBound particle
