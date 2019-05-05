@@ -127,9 +127,9 @@ applyBound = applyHorizontalBound . applyVerticalBound
 getPositionOfDensPart :: DensPart -> Coord
 getPositionOfDensPart (_, part) = position part
 
-buildQuadTree water getpos = foldl g (QuadTree (V2 (-800) (-450), V2 800 400) Empty) water
+buildQuadTree water getpos = foldr g (QuadTree (V2 (-800) (-450), V2 800 400) Empty) water
   where
-    g qt el = addElement qt el (getpos el)
+    g el qt = addElement qt el (getpos el)
 
 advance :: Water -> Water
 advance water = map g densAndWater
