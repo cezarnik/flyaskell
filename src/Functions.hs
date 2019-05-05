@@ -4,6 +4,7 @@ module Functions where
 import           Linear   (V2 (..), distance, (^*), (^/))
 import           Particle
 import           QuadTree
+import           Consts
 
 type DensPart = (Double, Particle)
 -- p
@@ -31,7 +32,7 @@ tensionCoef :: Double
 tensionCoef = 5
 
 h :: Double
-h = 7
+h = 4
 
 viscocityCoef :: Double
 viscocityCoef = -2
@@ -99,19 +100,23 @@ hessWPoly r = 315 / 64 / pi / h^9 * 6 * (h^2 - r^2) * (4 * r^2 - (h^2 - r^2))
 
 applyHorizontalBound :: Particle -> Particle
 applyHorizontalBound particle
-  | py < -450 = particle { position = (V2 px (-900 - py)), velocity = (V2 vx (-vy * attenuationBounceCoef)) }
-  | py > 450 =  particle { position = (V2 px (900 - py)), velocity = (V2 vx (-vy * attenuationBounceCoef)) }
+  | py < -half = particle { position = (V2 px (-h - py)), velocity = (V2 vx (-vy * attenuationBounceCoef)) }
+  | py > half =  particle { position = (V2 px (h - py)), velocity = (V2 vx (-vy * attenuationBounceCoef)) }
   | otherwise = particle
   where
+    h = fromIntegral height
+    half = h / 2
     V2 px py = position particle
     V2 vx vy = velocity particle
 
 applyVerticalBound :: Particle -> Particle
 applyVerticalBound particle
-  | px < -800 = particle { position = (V2 (-1600 - px) py), velocity = (V2 (-vx * attenuationBounceCoef) vy) }
-  | px > 800  = particle { position = (V2 (1600 - px) py), velocity = (V2 (-vx * attenuationBounceCoef) vy) }
+  | px < -half = particle { position = (V2 (-w - px) py), velocity = (V2 (-vx * attenuationBounceCoef) vy) }
+  | px > half  = particle { position = (V2 (w - px) py), velocity = (V2 (-vx * attenuationBounceCoef) vy) }
   | otherwise = particle
   where
+    w = fromIntegral width
+    half = w / 2
     V2 px py = position particle
     V2 vx vy = velocity particle
 
@@ -121,8 +126,10 @@ applyBound = applyHorizontalBound . applyVerticalBound
 getPositionOfDensPart :: DensPart -> Coord
 getPositionOfDensPart (_, part) = position part
 
-buildQuadTree water getpos = foldr g (QuadTree (V2 (-800) (-450), V2 800 400) Empty) water
+buildQuadTree water getpos = foldr g (QuadTree (V2 (-w / 2) (-h / 2),  V2 (w / 2) (h / 2)) Empty) water
   where
+    w = fromIntegral width
+    h = fromIntegral height
     g el qt = addElement qt el (getpos el)
 
 advance :: Water -> Water

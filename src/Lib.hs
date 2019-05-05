@@ -5,9 +5,9 @@ import           Functions      (advance)
 import           Graphics.Gloss
 import           Linear
 import           Particle
-
+import           Consts
 window :: Display
-window = InWindow "Water" (1600, 900) (10, 10)
+window = InWindow "Water" (width, height) (10, 10)
 
 background :: Color
 background = black
@@ -33,9 +33,11 @@ drawAll water = scale 0.5 0.5 (drawFrame <> foldMap drawParticle water)
 
 drawFrame :: Picture
 drawFrame
-  = Graphics.Gloss.color white (rectangleSolid (1610 + realToFrac(2 * rad)) (910 + realToFrac(2 *rad)))
- <> Graphics.Gloss.color black (rectangleSolid (1600 + realToFrac(2 * rad)) (900 + realToFrac(2 * rad)))
-
+  = Graphics.Gloss.color white (rectangleSolid (w + 10 + realToFrac(2 * rad)) (h + 10 + realToFrac(2 *rad)))
+ <> Graphics.Gloss.color black (rectangleSolid (w + realToFrac(2 * rad)) (h + realToFrac(2 * rad)))
+    where 
+      w = fromIntegral width
+      h = fromIntegral height
 run :: IO ()
 run = simulate window background 30 initialState drawAll adv
   where

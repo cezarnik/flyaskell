@@ -3,11 +3,11 @@ import            Particle hiding (position)
 import 						Linear (V2 (..), distance)
 data Quad a = Quad a a a a
 type Rect = (Coord, Coord) -- lower left, upper right
-data Quadrant a = Empty | Bucket a Coord | Split (Quad (QuadTree a))
+data Quadrant a = Empty | Bucket a Coord Int | Split (Quad (QuadTree a))
 data QuadTree a = QuadTree Rect (Quadrant a)
 
 min_dist :: Double
-min_dist = 0.005
+min_dist = 4
 
 -- Adds element into QuadTree
 -- lb - left bottom
@@ -15,9 +15,9 @@ min_dist = 0.005
 -- ru - right upper
 -- lu - left upper
 addElement :: QuadTree a -> a -> Coord -> QuadTree a
-addElement (QuadTree rect Empty) el pt = QuadTree rect (Bucket el pt)
-addElement (QuadTree rect (Bucket element position)) new_el new_pt
-	| distance new_pt position < min_dist = QuadTree rect (Bucket element position)
+addElement (QuadTree rect Empty) el pt = QuadTree rect (Bucket el pt 1)
+addElement (QuadTree rect (Bucket element position cnt)) new_el new_pt
+	| distance new_pt position < min_dist = QuadTree rect (Bucket element position (cnt + 1))
 	| otherwise                       = addElement (addElement (splitRect rect element) element position) new_el new_pt
 addElement (QuadTree (V2 x_lb y_lb, V2 x_ru y_ru) (Split (Quad lb rb ru lu))) new_el new_pt =
 		QuadTree (V2 x_lb y_lb, V2 x_ru y_ru) (Split quad)
@@ -88,8 +88,8 @@ getResults rad pivot qtree
 
 getRange :: Double -> Coord -> QuadTree a -> [a]
 getRange _ _ (QuadTree _ Empty) = []
-getRange rad pivot (QuadTree _ (Bucket element position))
-	| distance pivot position <= rad = [element]
+getRange rad pivot (QuadTree _ (Bucket element position cnt))
+	| distance pivot position <= rad = map (\x -> element) [1..cnt]
 	|	otherwise                     = []
 getRange rad pivot (QuadTree _ (Split (Quad lb rb ru lu))) = concat [lb_res, rb_res, ru_res, lu_res]
   where
