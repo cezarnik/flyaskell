@@ -37,6 +37,6 @@ drawFrame
  <> Graphics.Gloss.color black (rectangleSolid (1600 + realToFrac(2 * rad)) (900 + realToFrac(2 * rad)))
 
 run :: IO ()
-run = simulate window background 120 initialState drawAll adv
+run = simulate window background 30 initialState drawAll adv
   where
     adv _ _ = advance
