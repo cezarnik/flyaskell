@@ -16,7 +16,7 @@ unitVector start end
 calcPressurePoint :: Double -> Double
 calcPressurePoint p = k * (p - p0)
   where
-    k = 0.2
+    k = 0.002
     p0 = 0.01
 
 -- Must be from 0 to 1
@@ -24,7 +24,7 @@ attenuationBounceCoef :: Double
 attenuationBounceCoef = 0.1
 
 gravityCoef :: Double
-gravityCoef = 0
+gravityCoef = 2
 
 
 -- 1.0 not bad
@@ -32,7 +32,7 @@ tensionCoef :: Double
 tensionCoef = 5
 
 h :: Double
-h = 15
+h = 10
 
 viscocityCoef :: Double
 viscocityCoef = -2

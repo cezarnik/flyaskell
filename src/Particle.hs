@@ -22,8 +22,8 @@ mkParticle coord = Particle
   { color     = withAlpha 0.5 white
   , position  = coord
   , velocity  = V2 0 0
-  , mass      = 0.25
+  , mass      = 0.01
   }
 
 initialState :: Water
-initialState = [ mkParticle (V2 x y) | x <- [-10..10] , y <- [-10..10] ]
+initialState = [ mkParticle (V2 x y) | x <- [-70, -65..70] , y <- [-70, -65..70] ]
