@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fno-warn-type-defaults #-}
-module Functions where
+module Functions_old where
 
 import           Linear   (V2 (..), distance, (^*), (^/))
 import           Particle
@@ -36,24 +36,25 @@ h = 7
 viscocityCoef :: Double
 viscocityCoef = -2
 
+
+
 gravityForce :: Coord
 gravityForce = (V2 0 (-1)) ^* gravityCoef
 
--- calcAbstractForcePoint :: (DensPart -> DensPart -> Coord) -> [DensPart] -> DensPart ->  Coord
-calcAbstractForcePoint forceCalculator densWater qt (dens, part) = sum (map g near)
+calcAbstractForcePoint :: (DensPart -> DensPart -> Coord) -> [DensPart] -> DensPart -> Coord
+calcAbstractForcePoint forceCalculator densWater particle = sum (map g densWater)
   where
     g :: DensPart -> Coord
-    g = forceCalculator (dens, part)
-    near = getResults h (position part) qt
+    g = forceCalculator particle
 
 
--- calcPressureForcePoint :: [DensPart] -> DensPart -> Coord
+calcPressureForcePoint :: [DensPart] -> DensPart -> Coord
 calcPressureForcePoint = calcAbstractForcePoint calcPressureForceBetweenPoints
 
--- calcViscosityForcePoint :: [DensPart] -> DensPart -> Coord
+calcViscosityForcePoint :: [DensPart] -> DensPart -> Coord
 calcViscosityForcePoint = calcAbstractForcePoint calcViscosityForceBetweenPoints
 
--- calcTensionForcePoint :: [DensPart] -> DensPart -> Coord
+calcTensionForcePoint :: [DensPart] -> DensPart -> Coord
 calcTensionForcePoint = calcAbstractForcePoint calcTensionForceBetweenPoints
 
 
@@ -90,13 +91,19 @@ calcTensionForceBetweenPoints (_dens1, part1) (dens2, part2) = unit ^* ((mass pa
 
 
 wDens  :: Double -> Double
-wDens r = (1-r/h) ^ 2
+wDens r
+  | r <= h    = (1-r/h) ^ 2
+  | otherwise = 0
 
 wPoly :: Double -> Double
-wPoly r = 315 / 64 / pi / h^9 * (h^2 - r^2)^3
+wPoly r
+  | r <= h = 315 / 64 / pi / h^9 * (h^2 - r^2)^3
+  | otherwise = 0
 
 gradWPoly :: Double -> Double
-gradWPoly r = -315 / 64 / pi / h^9 * 6 * r * (h^2 - r^2) ^ 2
+gradWPoly r
+  | r <= h = -315 / 64 / pi / h^9 * 6 * r * (h^2 - r^2) ^ 2
+  | otherwise = 0
 
 hessWPoly :: Double -> Double
 hessWPoly r
@@ -124,28 +131,20 @@ applyVerticalBound particle
 applyBound :: Particle -> Particle
 applyBound = applyHorizontalBound . applyVerticalBound
 
-getPositionOfDensPart :: DensPart -> Coord
-getPositionOfDensPart (_, part) = position part
-
-buildQuadTree water getpos = foldl g (QuadTree (V2 (-800) (-450), V2 800 400) Empty) water
-  where
-    g qt el = addElement qt el (getpos el)
 
 advance :: Water -> Water
 advance water = map g densAndWater
   where
-    waterQuadTree = buildQuadTree water position
-    densities :: [Double]
-    densities = getDensity water waterQuadTree
     densAndWater :: [DensPart]
     densAndWater = zip densities water
-    densAndWaterQuadTree = buildQuadTree densAndWater getPositionOfDensPart
+    densities :: [Double]
+    densities = getDensity water
     pressureForce :: DensPart -> Coord
-    pressureForce = calcPressureForcePoint densAndWater densAndWaterQuadTree
+    pressureForce = calcPressureForcePoint densAndWater
     viscosityForce :: DensPart -> Coord
-    viscosityForce = calcViscosityForcePoint densAndWater densAndWaterQuadTree
+    viscosityForce = calcViscosityForcePoint densAndWater
     tensionForce :: (Double, Particle) -> Coord
-    tensionForce = calcTensionForcePoint densAndWater densAndWaterQuadTree
+    tensionForce = calcTensionForcePoint densAndWater
     g :: DensPart -> Particle
     g (dens, part) = applyBound part { position=position part + velocity part
       , velocity=velocity part + gravityForce + ((pressureForce (dens, part) +
@@ -156,13 +155,14 @@ calcDensityPoint :: Particle -> Water -> Double
 calcDensityPoint particle water = sum (map g water)
   where
     g :: Particle -> Double
-    g part = k * (mass part)
+    g part
+      | k /= 0 = k * (mass part)
+      | otherwise = 0
       where
         k = wDens (distance (position part) (position particle))
 
-getDensity water qt = map g water
+getDensity :: Water -> [Double]
+getDensity water = map g water
   where
     g :: Particle -> Double
-    g part = calcDensityPoint part nearwater
-      where
-        nearwater = getResults h (position part) qt
+    g part = calcDensityPoint part water

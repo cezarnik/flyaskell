@@ -9,9 +9,7 @@ data QuadTree a = QuadTree Rect (Quadrant a)
 min_dist :: Double
 min_dist = 0.005
 
-
-
--- Adds element into QuadTree 
+-- Adds element into QuadTree
 -- lb - left bottom
 -- rb - right bottom
 -- ru - right upper
@@ -21,14 +19,14 @@ addElement (QuadTree rect Empty) el pt = QuadTree rect (Bucket el pt)
 addElement (QuadTree rect (Bucket element position)) new_el new_pt
 	| distance new_pt position < min_dist = QuadTree rect (Bucket element position)
 	| otherwise                       = addElement (addElement (splitRect rect element) element position) new_el new_pt
-addElement (QuadTree (V2 x_lb y_lb, V2 x_ru y_ru) (Split (Quad lb rb ru lu))) new_el new_pt = 
+addElement (QuadTree (V2 x_lb y_lb, V2 x_ru y_ru) (Split (Quad lb rb ru lu))) new_el new_pt =
 		QuadTree (V2 x_lb y_lb, V2 x_ru y_ru) (Split quad)
 	where
 		quad
 			| is_lb     = Quad (g lb) rb ru lu
 			| is_rb     = Quad lb (g rb) ru lu
 			| is_ru     = Quad lb rb (g ru) lu
-			| otherwise = Quad lb rb ru (g lu)	
+			| otherwise = Quad lb rb ru (g lu)
 		g qtree = addElement qtree new_el new_pt
 		is_lb :: Bool
 		is_lb = (x_lb <= x) && (x <= x_half) && (y_lb <= y) && (y <= y_half)
@@ -39,7 +37,7 @@ addElement (QuadTree (V2 x_lb y_lb, V2 x_ru y_ru) (Split (Quad lb rb ru lu))) ne
 		is_ru :: Bool
 		is_ru = (x_half <= x) && (x <= x_ru) && (y_half <= y) && (y <= y_ru)
 
-		x_half :: Double	
+		x_half :: Double
 		x_half = (x_lb + x_ru) / 2
 
 		y_half :: Double
@@ -47,18 +45,18 @@ addElement (QuadTree (V2 x_lb y_lb, V2 x_ru y_ru) (Split (Quad lb rb ru lu))) ne
 		V2 x y = new_pt
 
 getRects :: Rect -> Quad Rect
-getRects (V2 x_lb y_lb, V2 x_ru y_ru) = Quad (V2 x_lb y_lb, center) (V2 x_half y_lb, V2 x_ru y_half) 
+getRects (V2 x_lb y_lb, V2 x_ru y_ru) = Quad (V2 x_lb y_lb, center) (V2 x_half y_lb, V2 x_ru y_half)
 	(center, V2 x_ru y_ru) (V2 x_lb y_half, V2 x_half y_ru)
-		where					 
+		where
 			x_half :: Double
 			x_half = (x_lb + x_ru) / 2
 			y_half :: Double
 			y_half = (y_lb + y_ru) / 2
 			center:: Coord
-			center = V2 x_half y_half 
+			center = V2 x_half y_half
 
 -- placeholder for determining type of QuadTree
-splitRect :: Rect -> a -> QuadTree a 
+splitRect :: Rect -> a -> QuadTree a
 splitRect rect _ = QuadTree rect (Split (Quad lb rb ru lu))
 	where
 		Quad lb_rect rb_rect ru_rect lu_rect = getRects rect
@@ -73,14 +71,14 @@ splitRect rect _ = QuadTree rect (Split (Quad lb rb ru lu))
 
 
 distRectPoint :: Rect -> Coord -> Double
-distRectPoint (V2 x_lb y_lb, V2 x_ru y_ru) (V2 x y) 
+distRectPoint (V2 x_lb y_lb, V2 x_ru y_ru) (V2 x y)
 	| (y_lb <= y) && (y <= y_ru) && (x_lb <= x) && (x <= x_ru) = 0
 	| (y_lb <= y) && (y <= y_ru) = min (abs (x - x_lb)) (abs (x - x_ru))
 	| (x_lb <= x) && (x <= x_ru) = min (abs (y - y_lb)) (abs (y - y_ru))
-	| otherwise = minimum [distance (V2 x y) (V2 x_lb y_lb), distance (V2 x y) (V2 x_lb y_ru), 
+	| otherwise = minimum [distance (V2 x y) (V2 x_lb y_lb), distance (V2 x y) (V2 x_lb y_ru),
 		distance (V2 x y) (V2 x_ru y_lb), distance (V2 x y) (V2 x_ru y_ru)]
 
- 
+
 getResults :: Double -> Coord -> QuadTree a -> [a]
 getResults rad pivot qtree
 	| distRectPoint rect pivot <= rad = getRange rad pivot qtree
